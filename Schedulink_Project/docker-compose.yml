@@ -1,18 +1,24 @@
-version: '3.8'
+version: '3.9'
+
 services:
   backend:
     build: ./backend
+    container_name: schedulink-backend
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://user:pass@db/schedulink
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - frontend
+
   frontend:
     build: ./frontend
+    container_name: schedulink-frontend
     ports:
       - "3000:3000"
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: schedulink
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+
